@@ -7,12 +7,15 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  setupIonicReact
+  setupIonicReact,
+  IonContent,
+  IonSpinner
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { home } from 'ionicons/icons';
+import { home, settings } from 'ionicons/icons';
 import Home from './pages/Home';
-import { useEffect } from 'react';
+import Settings from './pages/Settings';
+import { useEffect, useState } from 'react';
 import { NotificationService } from './services/NotificationService';
 
 /* Core CSS required for Ionic components to work properly */
@@ -48,18 +51,32 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => {
+  const [isReady, setIsReady] = useState(false);
+
   useEffect(() => {
-    // Initialize notifications
-    NotificationService.initialize();
+    const initializeApp = async () => {
+      try {
+        await NotificationService.initialize();
+        setIsReady(true);
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+      }
+    };
 
-    // Set up periodic check for notifications
-    const checkInterval = setInterval(() => {
-      NotificationService.checkAndNotifyIfNotWalked();
-    }, 60 * 60 * 1000); // Check every hour
-
-    // Clean up interval on unmount
-    return () => clearInterval(checkInterval);
+    initializeApp();
   }, []);
+
+  if (!isReady) {
+    return (
+      <IonApp>
+        <IonContent className="ion-padding">
+          <div className="ion-text-center">
+            <IonSpinner />
+          </div>
+        </IonContent>
+      </IonApp>
+    );
+  }
 
   return (
     <IonApp>
@@ -69,6 +86,9 @@ const App: React.FC = () => {
             <Route exact path="/home">
               <Home />
             </Route>
+            <Route exact path="/settings">
+              <Settings />
+            </Route>
             <Route exact path="/">
               <Redirect to="/home" />
             </Route>
@@ -77,6 +97,10 @@ const App: React.FC = () => {
             <IonTabButton tab="home" href="/home">
               <IonIcon icon={home} />
               <IonLabel>Home</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="settings" href="/settings">
+              <IonIcon icon={settings} />
+              <IonLabel>Settings</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

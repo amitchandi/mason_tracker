@@ -44,7 +44,7 @@ using (var scope = app.Services.CreateScope())
 // Endpoints
 app.MapGet("/records/today", async (AppDbContext db) =>
 {
-    var today = DateOnly.FromDateTime(DateTime.UtcNow);
+    var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
     return await db.DogWalkingRecords
         .FirstOrDefaultAsync(r => r.Date == today);
 });
@@ -74,11 +74,11 @@ app.MapPost("/records", async (DogWalkingRecord record, AppDbContext db) =>
 
 app.MapGet("/records/week", async (AppDbContext db) =>
 {
-    var today = DateOnly.FromDateTime(DateTime.UtcNow);
-    var weekAgo = today.AddDays(-7);
+    var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
+    var weekAgo = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd");
     
     return await db.DogWalkingRecords
-        .Where(r => r.Date >= weekAgo)
+        .Where(r => r.Date.CompareTo(weekAgo) >= 0)
         .OrderByDescending(r => r.Date)
         .ToListAsync();
 });

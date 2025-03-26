@@ -7,7 +7,7 @@ public class DogWalkingRecord
     public int Id { get; set; }
     
     [Required]
-    public DateOnly Date { get; set; }
+    public string Date { get; set; } = string.Empty;
     
     public bool Walked { get; set; }
     

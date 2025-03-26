@@ -4,7 +4,7 @@ export interface DogWalkingRecord {
   date: string;
   walked: boolean;
   pooped: boolean;
-  walkedBy: string;
+  walkedBy?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -75,4 +75,5 @@ ios/Runner/GeneratedPluginRegistrant.*
 .env.test.local
 .env.production.local 
 
-mason_tracker.db
+# Database files
+*.db

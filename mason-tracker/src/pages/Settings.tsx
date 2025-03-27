@@ -25,9 +25,7 @@ const Settings: React.FC = () => {
 
   const loadUserName = () => {
     const name = StorageService.getUserName();
-    if (name) {
-      setUserName(name);
-    }
+    setUserName(name || '');
   };
 
   const handleNameChange = (value: string) => {
@@ -65,6 +63,20 @@ const Settings: React.FC = () => {
                 <p>Please enter your name to track walks</p>
               </div>
             )}
+          </IonCardContent>
+        </IonCard>
+
+        <IonCard>
+          <IonCardHeader>
+            <IonCardTitle>API Information</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            <IonItem>
+              <IonLabel>
+                <h2>API URL</h2>
+                <p>{import.meta.env.VITE_API_URL}</p>
+              </IonLabel>
+            </IonItem>
           </IonCardContent>
         </IonCard>
       </IonContent>

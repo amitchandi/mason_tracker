@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using MasonTracker.Api.Data;
 using MasonTracker.Api.Models;
+using MasonTracker.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ApiKeyService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -37,19 +40,19 @@ app.UseCors();
 // Ensure database is created
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.EnsureCreated();
 }
 
 // Endpoints
-app.MapGet("/records/today", async (AppDbContext db) =>
+app.MapGet("/records/today", async (ApplicationDbContext db) =>
 {
     var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
     return await db.DogWalkingRecords
         .FirstOrDefaultAsync(r => r.Date == today);
 });
 
-app.MapPost("/records", async (DogWalkingRecord record, AppDbContext db) =>
+app.MapPost("/records", async (DogWalkingRecord record, ApplicationDbContext db) =>
 {
     var existingRecord = await db.DogWalkingRecords
         .FirstOrDefaultAsync(r => r.Date == record.Date);
@@ -72,7 +75,7 @@ app.MapPost("/records", async (DogWalkingRecord record, AppDbContext db) =>
     return existingRecord ?? record;
 });
 
-app.MapGet("/records/week", async (AppDbContext db) =>
+app.MapGet("/records/week", async (ApplicationDbContext db) =>
 {
     var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
     var weekAgo = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd");
@@ -81,6 +84,12 @@ app.MapGet("/records/week", async (AppDbContext db) =>
         .Where(r => r.Date.CompareTo(weekAgo) >= 0)
         .OrderByDescending(r => r.Date)
         .ToListAsync();
+});
+
+app.MapPost("/api/generate", async (ApiKeyService apiKeyService) =>
+{
+    var key = await apiKeyService.GenerateAndSaveKeyAsync();
+    return Results.Ok(new { key });
 });
 
 app.Run();

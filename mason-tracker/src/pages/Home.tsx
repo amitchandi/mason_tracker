@@ -100,6 +100,8 @@ const Home: React.FC = () => {
     
     try {
       const updatedRecord = await ApiService.createOrUpdateRecord({
+        walked: todayRecord?.walked || false,
+        pooped: todayRecord?.pooped || false,
         fed: checked,
         date: new Date().toISOString().split('T')[0],
         walkedBy: userName

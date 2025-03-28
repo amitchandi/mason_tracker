@@ -78,3 +78,4 @@ ios/Runner/GeneratedPluginRegistrant.*
 
 # Database files
 *.db
+*.db*

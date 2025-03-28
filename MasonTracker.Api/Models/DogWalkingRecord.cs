@@ -13,6 +13,8 @@ public class DogWalkingRecord
     
     public bool Pooped { get; set; }
     
+    public bool Fed { get; set; }
+    
     public string? WalkedBy { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

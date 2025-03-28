@@ -11,8 +11,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonList,
-  IonSpinner
+  IonList
 } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { ApiService, DogWalkingRecord } from '../services/ApiService';
@@ -24,7 +23,6 @@ const Home: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const [todayRecord, setTodayRecord] = useState<DogWalkingRecord | null>(null);
   const [weeklyRecords, setWeeklyRecords] = useState<DogWalkingRecord[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +47,6 @@ const Home: React.FC = () => {
 
   const loadData = async () => {
     try {
-      setLoading(true);
       const [today, weekly] = await Promise.all([
         ApiService.getTodayRecord(),
         ApiService.getWeeklyRecords()
@@ -59,8 +56,6 @@ const Home: React.FC = () => {
     } catch (err) {
       setError('Failed to load data. Please try again.');
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -100,17 +95,22 @@ const Home: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <IonPage>
-        <IonContent className="ion-padding">
-          <div className="ion-text-center">
-            <IonSpinner />
-          </div>
-        </IonContent>
-      </IonPage>
-    );
-  }
+  const handleFedChange = async (checked: boolean) => {
+    if (!userName) return;
+    
+    try {
+      const updatedRecord = await ApiService.createOrUpdateRecord({
+        fed: checked,
+        date: new Date().toISOString().split('T')[0],
+        walkedBy: userName
+      });
+      setTodayRecord(updatedRecord);
+      await loadData();
+    } catch (err) {
+      setError('Failed to update fed status. Please try again.');
+      console.error(err);
+    }
+  };
 
   return (
     <IonPage>
@@ -136,6 +136,13 @@ const Home: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 <IonList>
+                  <IonItem>
+                    <IonLabel>Fed</IonLabel>
+                    <IonCheckbox
+                      checked={todayRecord?.fed || false}
+                      onIonChange={e => handleFedChange(e.detail.checked)}
+                    />
+                  </IonItem>
                   <IonItem>
                     <IonLabel>Walked</IonLabel>
                     <IonCheckbox
@@ -171,7 +178,8 @@ const Home: React.FC = () => {
                       <IonLabel>
                         <h2>{new Date(record.date).toLocaleDateString()}</h2>
                         <p>
-                          {record.walked ? 'Walked' : 'Not walked'} • 
+                          {record.fed ? 'Fed' : 'Not fed'} • 
+                          {record.walked ? ' Walked' : ' Not walked'} • 
                           {record.pooped ? ' Pooped' : ' No poop'} • 
                           {record.walkedBy ? ` By ${record.walkedBy}` : ''}
                         </p>

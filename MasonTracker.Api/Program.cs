@@ -59,6 +59,7 @@ app.MapPost("/records", async (DogWalkingRecord record, ApplicationDbContext db)
 
     if (existingRecord != null)
     {
+        existingRecord.Fed = record.Fed;
         existingRecord.Walked = record.Walked;
         existingRecord.Pooped = record.Pooped;
         existingRecord.WalkedBy = record.WalkedBy;

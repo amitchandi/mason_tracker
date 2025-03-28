@@ -16,7 +16,7 @@ export class ApiService {
   private static async ensureApiKey(): Promise<string> {
     let apiKey = StorageService.getApiKey();
     if (!apiKey) {
-      const response = await axios.post(`${this.API_BASE_URL}/api/apikey/generate`);
+      const response = await axios.post(`${this.API_BASE_URL}/api/generate`);
       apiKey = response.data.key;
       if (apiKey) {
         StorageService.setApiKey(apiKey);

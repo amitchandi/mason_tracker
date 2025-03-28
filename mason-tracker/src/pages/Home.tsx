@@ -66,6 +66,7 @@ const Home: React.FC = () => {
       const updatedRecord = await ApiService.createOrUpdateRecord({
         walked: checked,
         pooped: checked ? (todayRecord?.pooped || false) : false,
+        fed: todayRecord?.fed || false,
         date: new Date().toISOString().split('T')[0],
         walkedBy: userName
       });
@@ -84,6 +85,7 @@ const Home: React.FC = () => {
       const updatedRecord = await ApiService.createOrUpdateRecord({
         walked: todayRecord?.walked || false,
         pooped: checked,
+        fed: todayRecord?.fed || false,
         date: new Date().toISOString().split('T')[0],
         walkedBy: userName
       });

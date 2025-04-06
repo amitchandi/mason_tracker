@@ -97,4 +97,8 @@ app.MapPost("/api/generate", async (ApiKeyService apiKeyService) =>
     return Results.Ok(new { key });
 });
 
+app.MapGet("/time", () => {
+    return DateTime.Now;
+});
+
 app.Run();

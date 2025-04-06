@@ -7,10 +7,12 @@ public class DailyRecordTask : IScheduledTask
 {
     public string Schedule => "1 0 * * *";
     private readonly IServiceProvider ServiceProvider;
+    private readonly ILogger<DailyRecordTask> Logger;
 
-    public DailyRecordTask(IServiceProvider serviceProvider)
+    public DailyRecordTask(IServiceProvider serviceProvider, ILogger<DailyRecordTask> logger)
     {
         ServiceProvider = serviceProvider;
+        Logger = logger;
     }
 
     public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -23,6 +25,7 @@ public class DailyRecordTask : IScheduledTask
         var _db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         var today = DateTime.UtcNow.Date.ToString("yyyy-MM-dd");
+        Logger.LogInformation("Creating record for: " + today);
         // Check if a record for today already exists
         var existingRecord = await _db.DogWalkingRecords
             .Where(dw => dw.Date == today)

@@ -5,6 +5,9 @@ export class NotificationService {
   static async initialize() {
     await LocalNotifications.requestPermissions();
     await this.scheduleNotification();
+
+    setInterval(() => this.checkAndNotify(), 1000 * 60 * 0.5);
+    await this.checkAndNotify();
   }
 
   private static async scheduleNotification() {

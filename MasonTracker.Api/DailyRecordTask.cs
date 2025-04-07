@@ -19,13 +19,13 @@ public class DailyRecordTask : IScheduledTask
     {
         await CreateDailyRecord(cancellationToken);
     }
-    private async Task CreateDailyRecord(CancellationToken cancellationToken)
+    public async Task CreateDailyRecord(CancellationToken cancellationToken)
     {
         using var scope = ServiceProvider.CreateScope();
         var _db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
-        var today = DateTime.UtcNow.Date.ToString("yyyy-MM-dd");
-        Logger.LogInformation("Creating record for: " + today);
+        var today = DateTime.Now.Date.ToString("yyyy-MM-dd");
+        Logger.LogInformation("Creating record for: {0}", today);
         // Check if a record for today already exists
         var existingRecord = await _db.DogWalkingRecords
             .Where(dw => dw.Date == today)
@@ -39,7 +39,9 @@ public class DailyRecordTask : IScheduledTask
                 Walked = false,
                 Pooped = false,
                 Fed = false,
-                WalkedBy = "nobody"
+                WalkedBy = "nobody",
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             });
             await _db.SaveChangesAsync();
         }

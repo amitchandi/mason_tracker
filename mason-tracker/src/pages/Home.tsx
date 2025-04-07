@@ -180,7 +180,7 @@ const Home: React.FC = () => {
                   {weeklyRecords.map(record => (
                     <IonItem key={record.date}>
                       <IonLabel>
-                        <h2>{record.date}</h2>
+                        <h2>{new Date(record.createdAt).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h2>
                         <p>
                           {record.fed ? 'Fed' : 'Not fed'} • 
                           {record.walked ? ' Walked' : ' Not walked'} • 

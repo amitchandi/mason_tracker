@@ -51,7 +51,7 @@ using (var scope = app.Services.CreateScope())
 // Endpoints
 app.MapGet("/records/today", async (ApplicationDbContext db) =>
 {
-    var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
+    var today = DateTime.Now.ToString("yyyy-MM-dd");
     return await db.DogWalkingRecords
         .FirstOrDefaultAsync(r => r.Date == today);
 });
@@ -67,12 +67,12 @@ app.MapPost("/records", async (DogWalkingRecord record, ApplicationDbContext db)
         existingRecord.Walked = record.Walked;
         existingRecord.Pooped = record.Pooped;
         existingRecord.WalkedBy = record.WalkedBy;
-        existingRecord.UpdatedAt = DateTime.UtcNow;
+        existingRecord.UpdatedAt = DateTime.Now;
     }
     else
     {
-        record.CreatedAt = DateTime.UtcNow;
-        record.UpdatedAt = DateTime.UtcNow;
+        record.CreatedAt = DateTime.Now;
+        record.UpdatedAt = DateTime.Now;
         db.DogWalkingRecords.Add(record);
     }
 
@@ -82,8 +82,8 @@ app.MapPost("/records", async (DogWalkingRecord record, ApplicationDbContext db)
 
 app.MapGet("/records/week", async (ApplicationDbContext db) =>
 {
-    var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
-    var weekAgo = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd");
+    var today = DateTime.Now.ToString("yyyy-MM-dd");
+    var weekAgo = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd");
     
     return await db.DogWalkingRecords
         .Where(r => r.Date.CompareTo(weekAgo) >= 0)
@@ -98,7 +98,18 @@ app.MapPost("/api/generate", async (ApiKeyService apiKeyService) =>
 });
 
 app.MapGet("/time", () => {
-    return DateTime.Now;
+    return Results.Ok(DateTime.Now);
+});
+
+app.MapGet("/timeUTC", () => {
+    return Results.Ok(DateTime.UtcNow);
+});
+
+app.MapDelete("/records", async (ApplicationDbContext db, IScheduledTask dailyRecordTask) => {
+    await db.Database.EnsureDeletedAsync();
+    await db.Database.EnsureCreatedAsync();
+    await ((DailyRecordTask)dailyRecordTask).CreateDailyRecord(CancellationToken.None);
+    return Results.Ok();
 });
 
 app.Run();
